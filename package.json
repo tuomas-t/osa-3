@@ -10,7 +10,8 @@
     "build:ui": "rm -rf build && cd ../fullstack/2/puhelinluettelo/ && npm run build && cp -r build ../../../3",
     "deploy": "git push heroku master",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push && npm run deploy",
-    "logs:prod": "heroku logs --tail"
+    "logs:prod": "heroku logs --tail",
+    "lint": "eslint ."
   },
   "proxy": "http://localhost:3001",
   "repository": {
@@ -28,6 +29,10 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.8.1",
+    "@typescript-eslint/parser": "^5.8.1",
+    "eslint": "^8.6.0",
+    "eslint-plugin-vue": "^8.2.0",
     "nodemon": "^2.0.15"
   }
 }
