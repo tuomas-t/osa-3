@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
+const Person = require('./models/person')
 
 const app = express()
 app.use(express.static('build'))
@@ -11,35 +13,14 @@ app.use(cors())
 morgan.token('body', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-let persons = [
-    {
-      id: 1,
-      name: 'Arto Hellas',
-      number: '040-123456'
-    },
-    {
-        id: 2,
-        name: 'Ada Lovelace',
-        number: '39-44-5323523'
-    },
-    {
-        id: 3,
-        name: 'Dan Abramov',
-        number: '12-43-234345'
-    },
-    {
-        id: 4,
-        name: 'Mary Poppendick',
-        number: '39-23-6423122'
-    }
-]
-
 const generateId = () => {
     return Math.floor(Math.random() * 1000)
 }
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then(p => {
+        res.json(p)
+    })
 })
 
 app.get('/info', (req, res) => {
@@ -47,13 +28,13 @@ app.get('/info', (req, res) => {
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(p => p.id === id)
-    if (person) {
-        res.json(person)
-    } else {
-        res.status(404).end()
-    }
+    Person.findById(req.params.id).then(p => {
+        if (!p) {
+            res.status(404).end()
+        } else {
+            res.json(p)
+        }
+    })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -76,13 +57,14 @@ app.post('/api/persons/', (req, res) => {
             error: 'number missing' 
         })
     }
-    const person = {
+    const person = new Person ({
         id: generateId(),
         name: req.body.name,
         number: req.body.number,
-    }
-    persons = persons.concat(person)
-    res.json(person)
+    })
+    person.save().then(p => {
+      res.json(p.toJSON())
+    })
 })
 
 const unknownEndpoint = (req, res) => {
